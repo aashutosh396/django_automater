@@ -1,4 +1,4 @@
-+ Step 1: Copy this django_automater.py to the location of the app you want to automate.
++ **Step 1**: Copy this django_automater.py to the location of the app you want to automate.
 
 For example:
 
@@ -12,9 +12,9 @@ For example:
     + views.py
     + django_automater.py (our script file here)
 
-+ Step 2: Write down the models in the models.py -> makemigrations -> migrate
++ **Step 2:** Write down the models in the models.py -> makemigrations -> migrate
 
-+ Step 3: Now go to the location of this django_automater.py and run the following command:
++ **Step 3:** Now go to the location of this django_automater.py and run the following command:
     + python django_automater.py
 
 
