@@ -3,36 +3,41 @@ import re
 import json
 
 list_html = '''
-    <h2>List of Items</h2>
-    <a href="{{create_url}}">Create New</a>
-    <table>
-        <thead>
-            <tr>
-                {% for field_name in fields %}
-                    <th>{{ field_name }}</th>
+    
+
+    <div class="d-flex justify-content-end mb-3 pt-5">
+    <a href="{{create_url}}" class="btn btn-sm btn-primary">Create New</a>
+    </div>
+    <div class="pb-5">
+        <table id="create_table">
+            <thead>
+                <tr>
+                    {% for field_name in fields %}
+                        <th>{{ field_name }}</th>
+                    {% endfor %}
+                    <th> Actions </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data %}
+                <tr>
+                    {% for field_name in fields %}
+                    {% for key,value in item.items %}
+                    {% if key == field_name %}
+                    <td>{{value}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                    <td>
+                        <a href="{% url detail_url pk=item.id %}" class="btn btn-sm btn-primary"><i class="fa fa-eye me-2"></i>Detail</a>
+                        <a href="{% url update_url pk=item.id %}" class="btn btn-sm btn-success"><i class="fa fa-edit me-2"></i>Update</a>
+                        <a href="{% url confirm_delete_url pk=item.id %}" class="btn btn-sm btn-danger"><i class="fa fa-trash me-2"></i>Delete</a>
+                    </td>
+                </tr>
                 {% endfor %}
-                <th> Actions </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in data %}
-            <tr>
-                {% for field_name in fields %}
-                {% for key,value in item.items %}
-                {% if key == field_name %}
-                <td>{{value}}</td>
-                {% endif %}
-                {% endfor %}
-                {% endfor %}
-                <td>
-                    <a href="{% url detail_url pk=item.id %}">Detail</a>
-                    <a href="{% url update_url pk=item.id %}">Update</a>
-                    <a href="{% url confirm_delete_url pk=item.id %}">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 '''
 
 
@@ -53,36 +58,104 @@ detail_html = '''
 '''
 
 confirm_delete_html = '''
-    <h2>Delete Item</h2>
-    <p>Are you sure you want to delete "{{ object.name }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Delete</button>
-    </form>
+    <div class="py-5">
+        <h2>Delete Item</h2>
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+        </form>
+    </div>
 '''
 
 
 form_html = '''
-    <h2>Create Item</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
-    </form>
+    <style>
+   /* Text input fields */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    /* Select dropdowns */
+    select {
+        appearance: none; /* Remove default arrow */
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>'); /* Custom arrow */
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+    }
+
+    /* Textareas */
+    textarea {
+        resize: vertical; /* Allow vertical resizing */
+    }
+
+    /* Checkbox and radio button labels */
+    .checkbox-label,
+    .radio-label {
+        display: inline-block;
+        margin-right: 10px;
+        font-size: 16px;
+    }
+
+    /* Checkbox and radio buttons */
+    .checkbox-input,
+    .radio-input {
+        margin-right: 5px;
+    }
+
+    /* Submit button */
+    input[type="submit"] {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    /* Hover effect on submit button */
+    input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+
+    </style>
+    
+    <div class="container py-5">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" class="w-100" />
+        </form>
+    </div>
 '''
 
 def generate_html_files(folder_location, model_and_template, fields):
     model_name, template_name = model_and_template
-    file_path = os.path.join(folder_location, 'templates', pascal_to_snake_case(model_name) , template_name)
+    file_path = os.path.join(folder_location, pascal_to_snake_case(model_name) , template_name)
 
     view = ''
-    if 'list.html' in file_path:
+    print(file_path)
+    if file_path.endswith('list.html'):
         view = 'list'    
-    elif 'detail.html' in file_path:
+    elif file_path.endswith('detail.html'):
         view = 'detail'
-    elif 'update.html' or 'create.html' in file_path:
+    elif file_path.endswith('form.html'):
         view = 'form'
-    elif 'confirm_delete.html' in file_path:
+    elif file_path.endswith('confirm_delete.html'):
         view = 'confirm_delete'
 
     html_data = generate_html_content(model_name, view , fields)
@@ -100,14 +173,16 @@ def generate_html_files(folder_location, model_and_template, fields):
 
 
 def generate_html_content(model_name, view, fields):
+    print(view)
     title = model_name.title()
     if view == 'list':
         return list_html
     elif view == 'detail':
         return detail_html
-    elif view in ['form']:
+    elif view  == 'form':
         return form_html
     elif view == 'confirm_delete':
+        print(view)
         return confirm_delete_html
     
 
@@ -140,7 +215,7 @@ def read_json(file_path):
         data = json.load(file)
     return data
 
-def create_view_file(folder_location, data):
+def create_view_file(folder_location, app_name, data):
     """
     Create a views file based on the provided JSON data.
     """
@@ -195,7 +270,7 @@ def create_view_file(folder_location, data):
                 view_class_name = url_info["view"]
                 view_name = view_class_name.replace("View", "").lower()
                 model_name = model_folder["related_model"]
-                template_name = f'{pascal_to_snake_case(model_name)}/{url_info["template_name"]}'
+                template_name = f'{app_name}/{pascal_to_snake_case(model_name)}/{url_info["template_name"]}'
                 success_url = current_success_url
 
                 if "list" in view_name:
@@ -436,9 +511,9 @@ def create_model_folders(folder_location):
 
 
 
-
+    app_name = os.path.split(folder_location)[-1]
     # Create a templates folder in the initial folder
-    templates_folder = os.path.join(folder_location, "templates")
+    templates_folder = os.path.join(folder_location, "templates/", app_name)
     os.makedirs(templates_folder, exist_ok=True)
 
     base_template = "dashboard-base.html"
@@ -478,8 +553,8 @@ def create_model_folders(folder_location):
     json_file_path = os.path.join(folder_location, "model_folders.json") 
     data = read_json(json_file_path)
     
-    create_view_file(folder_location, data)
-    fetch_template_names(folder_location, data)
+    create_view_file(folder_location, app_name, data)
+    fetch_template_names(templates_folder, data)
 
 
     return {"model_folders": model_folders, "json_file_path": json_file_path}

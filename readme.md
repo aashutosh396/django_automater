@@ -14,9 +14,17 @@ For example:
 
 + **Step 2:** Write down the models in the models.py -> makemigrations -> migrate
 
-+ **Step 3:** Now go to the location of this django_automater.py and run the following command:
-    + python django_automater.py
+    ``` python
+    python manage.py makemigrations <app_name>
+    ```
+    ``` python
+    python manage.py migrate <app_name>
+    ```
 
++ **Step 3:** Now go to the location of this django_automater.py and run the following command:
+    ``` python
+    python django_automater.py
+    ```
 
 
 <hr style="
@@ -36,3 +44,27 @@ Note: Make sure that this a new app if you do it on any app that is previously c
     + You will have views.py, urls.py, templates/ folder with all the required templates created and linked with each other.
 
 
+
+## Additional Steps to make asethetic UI
+
++ Copy the following code to the end of the dashboard-base.html
+
+    ```javascript
+    <script>
+    $(document).ready(function () {
+        $('#create_table').DataTable();
+    });
+    </script>
+    ```
+
++ copy the following code to the head section of the dashboard-base.html
+
+    ```html
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        
+    <!-- Data Tables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css">
+    ```
