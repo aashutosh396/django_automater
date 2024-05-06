@@ -148,7 +148,6 @@ def generate_html_files(folder_location, model_and_template, fields):
     file_path = os.path.join(folder_location, pascal_to_snake_case(model_name) , template_name)
 
     view = ''
-    print(file_path)
     if file_path.endswith('list.html'):
         view = 'list'    
     elif file_path.endswith('detail.html'):
@@ -173,7 +172,6 @@ def generate_html_files(folder_location, model_and_template, fields):
 
 
 def generate_html_content(model_name, view, fields):
-    print(view)
     title = model_name.title()
     if view == 'list':
         return list_html
@@ -182,7 +180,6 @@ def generate_html_content(model_name, view, fields):
     elif view  == 'form':
         return form_html
     elif view == 'confirm_delete':
-        print(view)
         return confirm_delete_html
     
 
@@ -421,7 +418,7 @@ def create_django_template(folder_location, folder_name, base_template="base.htm
     # Iterate through template files and create them with content
     for file_name in template_files:
         file_path = os.path.join(folder_location, file_name)
-        file_type = file_name.split('_')[1] 
+        # file_type = file_name.split('_')[1] 
 
         try:
             with open(file_path, "w") as f:
@@ -438,7 +435,7 @@ def create_django_template(folder_location, folder_name, base_template="base.htm
                     f.write("confirm_delete_content")
             
                 f.write("{% endblock %}")
-            print("File created successfully.")  # Debug print
+            print("Created: ", file_name)  # Debug print
         except Exception as e:
             print("Error creating file:", e)
 
